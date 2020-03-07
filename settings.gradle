@@ -1,0 +1,3 @@
+rootProject.name='AdaptivePlayerApp'
+include ':app', ':spotify-app-remote'
+include ':mood-definer'
