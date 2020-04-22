@@ -1,3 +1,6 @@
 rootProject.name='AdaptivePlayerApp'
 include ':app', ':spotify-app-remote'
 include ':mood-definer'
+include ':weather-talker'
+include ':core-di2'
+include ':gps-module2'
