@@ -11,8 +11,12 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.itis.adaptiveplayerapp.R
+import com.itis.adaptiveplayerapp.di.component.DaggerServiceInteractorComponent
+import com.itis.adaptiveplayerapp.service.interactor.SpotifyServiceInteractor
+import javax.inject.Inject
 
 class StateService : Service() {
+
 
     private var state = "Calm"
     val CHANNEL_ID = "27"
@@ -28,6 +32,7 @@ class StateService : Service() {
         intent.let {
             when (it?.action) {
                 "start" -> {setNotification()}
+
             }
         }
         return super.onStartCommand(intent, flags, startId)

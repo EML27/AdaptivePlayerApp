@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme"
         android:name=".App">
         <service
-            android:name=".service.SpotifyInteractorService"
+            android:name=".service.SpotifyPlayerService"
             android:enabled="true"
             android:exported="true"></service>
         <service

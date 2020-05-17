@@ -10,14 +10,14 @@ import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
 
-class SpotifyInteractorService : Service() {
+class SpotifyPlayerService : Service() {
 
     override fun onBind(intent: Intent): IBinder {
         return SpotyBinder()
     }
 
     inner class SpotyBinder : Binder() {
-        fun getService() = this@SpotifyInteractorService
+        fun getService() = this@SpotifyPlayerService
     }
 
     private var mSpotifyAppRemote: SpotifyAppRemote? = null
@@ -55,5 +55,19 @@ class SpotifyInteractorService : Service() {
 
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        intent.let {
+            when (it?.action) {
+                "start" -> {
+                    startMusic()
+                }
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    fun startMusic() {
+        mSpotifyAppRemote?.playerApi?.play("spotify:playlist:37i9dQZF1DWXpOtMyVOt4Q")
+    }
 
 }
