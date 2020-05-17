@@ -59,4 +59,6 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     implementation "com.google.dagger:dagger:$dagger_version"
     compileOnly "org.glassfish:javax.annotation:10.0-b28"
+
+    implementation "com.github.stfalcon:androidmvvmhelper:0.4"
 }
