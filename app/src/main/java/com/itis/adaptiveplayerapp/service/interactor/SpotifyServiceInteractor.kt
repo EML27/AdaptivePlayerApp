@@ -16,13 +16,11 @@ class SpotifyServiceInteractor @Inject constructor() {
     private var mConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             spotifyPlayerService = null
-            //Toast.makeText(this@TrackActivity,"Entered onServiceDisconnected block", Toast.LENGTH_SHORT).show()
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as SpotifyPlayerService.SpotyBinder
             spotifyPlayerService = binder.getService()
-            //Toast.makeText(this@TrackActivity,"Entered onServiceConnected block", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -36,8 +34,15 @@ class SpotifyServiceInteractor @Inject constructor() {
 
     fun startSpotifyPlayerService() {
         App.getInstance()
-            ?.startService(Intent(App.getInstance(), SpotifyPlayerService::class.java).apply {
-                action = "start"
-            })
+            ?.startService(Intent(App.getInstance(), SpotifyPlayerService::class.java))
+    }
+
+    fun startSpotifyPlayerService(command: String) {
+        App.getInstance()
+            ?.startService(
+                Intent(
+                    App.getInstance(),
+                    SpotifyPlayerService::class.java
+                ).apply { action = command })
     }
 }

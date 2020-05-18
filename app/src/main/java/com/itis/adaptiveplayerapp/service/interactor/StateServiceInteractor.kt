@@ -12,18 +12,15 @@ import javax.inject.Inject
 class StateServiceInteractor @Inject constructor() {
 
 
-
     var stateService: StateService? = null
     private var mConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             stateService = null
-            //Toast.makeText(this@TrackActivity,"Entered onServiceDisconnected block", Toast.LENGTH_SHORT).show()
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as StateService.MyBinder
             stateService = binder.getService()
-            //Toast.makeText(this@TrackActivity,"Entered onServiceConnected block", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -35,9 +32,13 @@ class StateServiceInteractor @Inject constructor() {
         )
 
 
-    fun startStateService(command: String) {
+    fun startStateService() {
         App.getInstance()?.startService(Intent(App.getInstance(), StateService::class.java).apply {
-            action = command
+            action = "start"
         })
+    }
+
+    fun stopStateService(){
+        App.getInstance()?.startService(Intent(App.getInstance(),StateService::class.java).apply { action="stop" })
     }
 }

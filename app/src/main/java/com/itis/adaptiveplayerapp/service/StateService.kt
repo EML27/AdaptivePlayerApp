@@ -31,19 +31,15 @@ class StateService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent.let {
             when (it?.action) {
-                "start" -> {setNotification()}
+                "start" -> setNotification()
 
+                "stop" -> stopSelf()
             }
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
     private fun setNotification() {
-        // Интенты для будущих команд
-        val getIntent =
-            { action: String -> Intent(this, StateService::class.java).setAction(action) }
-        val getPendingIntent =
-            { action: String -> PendingIntent.getService(this, 0, getIntent(action), 0) }
 
         val currentStateTitle: String
 
@@ -74,6 +70,7 @@ class StateService : Service() {
             .build()
 
         notificationManager.notify(1, notification)
+        startService(Intent(this, SpotifyPlayerService::class.java).apply { action = "start" })
     }
 
 }

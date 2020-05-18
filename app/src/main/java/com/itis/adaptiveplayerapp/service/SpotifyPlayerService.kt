@@ -12,6 +12,9 @@ import com.spotify.android.appremote.api.SpotifyAppRemote
 
 class SpotifyPlayerService : Service() {
 
+    //if true, service would kill itself every time it finishes the command
+    var selfStop = false
+
     override fun onBind(intent: Intent): IBinder {
         return SpotyBinder()
     }
@@ -66,7 +69,7 @@ class SpotifyPlayerService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    fun startMusic() {
+    private fun startMusic() {
         mSpotifyAppRemote?.playerApi?.play("spotify:playlist:37i9dQZF1DWXpOtMyVOt4Q")
     }
 
