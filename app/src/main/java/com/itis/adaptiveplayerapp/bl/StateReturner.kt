@@ -1,16 +1,17 @@
 package com.itis.adaptiveplayerapp.bl
 
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
+import com.itis.adaptiveplayerapp.bl.gps.DaggerUserOccupationComponent
 import com.itis.adaptiveplayerapp.bl.gps.UserOccupation
-import com.itis.adaptiveplayerapp.di.component.DaggerStateComponent
+import com.itis.adaptiveplayerapp.di.component.DaggerLocationRepresenterComponent
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class StateReturner @Inject constructor(){
+class StateReturner @Inject constructor() {
 
     init {
-        DaggerStateComponent.create().inject(this)
+        DaggerUserOccupationComponent.create().inject(this)
     }
 
     @Inject

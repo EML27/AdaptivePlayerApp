@@ -1,13 +1,17 @@
 package com.itis.adaptiveplayerapp.bl.gps
 
-import com.itis.adaptiveplayerapp.di.component.DaggerStateComponent
+import com.itis.adaptiveplayerapp.bl.StateReturner
+import com.itis.adaptiveplayerapp.di.component.DaggerLocationRepresenterComponent
+import dagger.Component
+import dagger.Module
+import dagger.Provides
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class UserOccupation @Inject constructor() {
     init {
-        DaggerStateComponent.create().inject(this)
+        DaggerLocationRepresenterComponent.create().inject(this)
     }
 
     @Inject
@@ -27,4 +31,17 @@ class UserOccupation @Inject constructor() {
         }
         return res.name
     }
+}
+
+@Module
+class UserOccupationModule {
+    @Provides
+    fun getUserOccupation(): UserOccupation {
+        return UserOccupation()
+    }
+}
+
+@Component(modules = [UserOccupationModule::class])
+interface UserOccupationComponent {
+    fun inject(obj: StateReturner)
 }

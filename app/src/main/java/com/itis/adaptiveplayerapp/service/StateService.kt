@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import com.itis.adaptiveplayerapp.R
 import com.itis.adaptiveplayerapp.bl.StateReturner
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
-import com.itis.adaptiveplayerapp.di.component.DaggerStateComponent
 import com.itis.adaptiveplayerapp.di.component.DaggerStateReturnerComponent
 import javax.inject.Inject
 
@@ -90,7 +89,7 @@ class StateService : Service() {
             while (true) {
                 this@StateService.state = stateReturner.getState()
                 setNotification()
-                sleep(60000)
+                sleep(1000)
             }
         }
     }

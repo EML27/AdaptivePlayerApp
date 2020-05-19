@@ -6,14 +6,10 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-class StateModule {
+class LocationRepresenterModule {
     @Provides
     fun getLocationRepresenter():LocationRepresenter{
         return LocationRepresenter()
     }
 
-    @Provides
-    fun getUserOccupation(): UserOccupation{
-        return UserOccupation()
-    }
 }
