@@ -3,6 +3,7 @@ package com.itis.adaptiveplayerapp.ui.view
 import com.itis.adaptiveplayerapp.R
 import javax.inject.Inject
 import android.os.Bundle
+import com.itis.adaptiveplayerapp.bl.gps.LocationRepresenter
 import com.itis.adaptiveplayerapp.ui.viewmodel.di.qualifiers.ViewModelInjection
 import com.itis.adaptiveplayerapp.ui.viewmodel.ui.BaseActivity
 import kotlinx.android.synthetic.main.activity_starter_activity.*
@@ -19,6 +20,7 @@ class StarterActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         viewModel.startSpotifyService()
         play_btn.setOnClickListener { viewModel.startService() }
-    }
 
+        LocationRepresenter.checkAndAskForPermissions(this)
+    }
 }

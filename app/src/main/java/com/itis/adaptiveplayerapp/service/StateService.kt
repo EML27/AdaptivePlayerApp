@@ -2,7 +2,6 @@ package com.itis.adaptiveplayerapp.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -11,17 +10,24 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.itis.adaptiveplayerapp.R
-import com.itis.adaptiveplayerapp.di.component.DaggerServiceInteractorComponent
-import com.itis.adaptiveplayerapp.service.interactor.SpotifyServiceInteractor
+import com.itis.adaptiveplayerapp.bl.StateReturner
+import com.itis.adaptiveplayerapp.bl.dto.StateDto
+import com.itis.adaptiveplayerapp.di.component.DaggerStateComponent
+import com.itis.adaptiveplayerapp.di.component.DaggerStateReturnerComponent
 import javax.inject.Inject
 
 class StateService : Service() {
 
+    init {
+        DaggerStateReturnerComponent.create().inject(this)
+    }
 
-    private var state = "Calm"
+    @Inject
+    lateinit var stateReturner: StateReturner
+
+    private var state: StateDto? = null
     val CHANNEL_ID = "27"
     override fun onBind(intent: Intent): IBinder = mBinder
-
     inner class MyBinder : Binder() {
         fun getService() = this@StateService
     }
@@ -31,7 +37,9 @@ class StateService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent.let {
             when (it?.action) {
-                "start" -> setNotification()
+                "start" -> {
+                    ListeningThread().start()
+                }
 
                 "stop" -> stopSelf()
             }
@@ -39,12 +47,13 @@ class StateService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+
     private fun setNotification() {
 
         val currentStateTitle: String
 
         //Логика установки текущего состояния
-        currentStateTitle = state
+        currentStateTitle = state?.occupation ?: ""
         // оаоаоаоаоаоаоа
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -71,6 +80,19 @@ class StateService : Service() {
 
         notificationManager.notify(1, notification)
         startService(Intent(this, SpotifyPlayerService::class.java).apply { action = "start" })
+    }
+
+    inner class ListeningThread : Thread() {
+
+
+        override fun run() {
+            super.run()
+            while (true) {
+                this@StateService.state = stateReturner.getState()
+                setNotification()
+                sleep(60000)
+            }
+        }
     }
 
 }
