@@ -71,6 +71,7 @@ class SpotifyPlayerService : Service() {
 
     private fun startMusic() {
         mSpotifyAppRemote?.playerApi?.play("spotify:playlist:37i9dQZF1DWXpOtMyVOt4Q")
+
     }
 
 }
