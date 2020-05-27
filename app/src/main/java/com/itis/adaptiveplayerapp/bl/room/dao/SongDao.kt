@@ -1,5 +1,6 @@
 package com.itis.adaptiveplayerapp.bl.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -11,13 +12,13 @@ import com.itis.adaptiveplayerapp.bl.room.entity.StateEntity
 interface SongDao {
 
     @Query("SELECT * FROM song")
-    fun getAll(): List<SongEntity>
+    fun getAll(): LiveData<List<SongEntity>>
 
-    @Query("SELECT * FROM song WHERE songId =:id")
+    @Query("SELECT * FROM song WHERE song.songId =:id")
     fun getSongById(id: Long): SongEntity
 
-    @Query("SELECT songId,url FROM song INNER JOIN song_state ON song.songId=song_state.songId WHERE stateId=:stateEntityId")
-    fun getSongsByState(stateEntityId: Long): List<SongEntity>
+    @Query("SELECT song.songId,url FROM song INNER JOIN song_state ON song.songId=song_state.songId WHERE stateId=:stateEntityId")
+    fun getSongsByState(stateEntityId: Long): LiveData<List<SongEntity>>
 
     @Insert
     fun insert(song: SongEntity)
