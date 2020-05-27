@@ -18,7 +18,7 @@ import javax.inject.Singleton
 class LocationRepresenter @Inject constructor() : LocationListener {
     fun getCurrentLocation(): Location {
         val context = App.getInstance()
-        var lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             lm.requestLocationUpdates(
@@ -43,16 +43,7 @@ class LocationRepresenter @Inject constructor() : LocationListener {
                 ) != PackageManager.PERMISSION_GRANTED)
     }
 
-    private fun checkAndAskForPermissions(activity: Activity) {
-        if (!checkLocationPermissions(activity)
-        ) {
-            val permissions = arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            activity.requestPermissions(permissions, 0)
-        }
-    }
+
 
     override fun onLocationChanged(p0: Location?) {
         TODO("Not yet implemented")

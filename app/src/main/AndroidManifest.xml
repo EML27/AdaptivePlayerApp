@@ -3,6 +3,7 @@
     package="com.itis.adaptiveplayerapp">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -20,7 +21,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".ui.view.MainActivity"/>
         <activity android:name="com.itis.adaptiveplayerapp.ui.view.StarterActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

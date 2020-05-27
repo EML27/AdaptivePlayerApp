@@ -13,6 +13,9 @@ import com.itis.adaptiveplayerapp.R
 import com.itis.adaptiveplayerapp.bl.StateReturner
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
 import com.itis.adaptiveplayerapp.di.component.DaggerStateReturnerComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class StateService : Service() {
@@ -52,7 +55,7 @@ class StateService : Service() {
         val currentStateTitle: String
 
         //Логика установки текущего состояния
-        currentStateTitle = state?.occupation ?: ""
+        currentStateTitle = state?.occupation + " " + state?.time + " "+ state?.weather
         // оаоаоаоаоаоаоа
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -78,18 +81,21 @@ class StateService : Service() {
             .build()
 
         notificationManager.notify(1, notification)
-        startService(Intent(this, SpotifyPlayerService::class.java).apply { action = "start" })
+//        startService(Intent(this, SpotifyPlayerService::class.java).apply { action = "start" })
     }
 
     inner class ListeningThread : Thread() {
 
+        private val waitTime = 10000.toLong()
 
         override fun run() {
             super.run()
             while (true) {
-                this@StateService.state = stateReturner.getState()
-                setNotification()
-                sleep(1000)
+                CoroutineScope(Dispatchers.IO).launch {
+                    this@StateService.state = stateReturner.getState()
+                    setNotification()
+                }
+                sleep(waitTime)
             }
         }
     }

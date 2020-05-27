@@ -31,17 +31,7 @@ class UserOccupation @Inject constructor() {
         }
         return res.name
     }
+
+    fun getLocation() = locationRepresenter.getCurrentLocation()
 }
 
-@Module
-class UserOccupationModule {
-    @Provides
-    fun getUserOccupation(): UserOccupation {
-        return UserOccupation()
-    }
-}
-
-@Component(modules = [UserOccupationModule::class])
-interface UserOccupationComponent {
-    fun inject(obj: StateReturner)
-}
