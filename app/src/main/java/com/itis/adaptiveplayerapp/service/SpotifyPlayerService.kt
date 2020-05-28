@@ -6,11 +6,24 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import com.itis.adaptiveplayerapp.BuildConfig
+import com.itis.adaptiveplayerapp.DaggerAppComponent
+import com.itis.adaptiveplayerapp.bl.MusicRecommender
+import com.itis.adaptiveplayerapp.bl.dto.StateDto
+import com.itis.adaptiveplayerapp.di.component.DaggerInjectForMusicRecommenderComponent
+import com.itis.adaptiveplayerapp.di.component.DaggerInjectForSpotyServiceComponent
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import javax.inject.Inject
 
 class SpotifyPlayerService : Service() {
+
+    init {
+        DaggerInjectForSpotyServiceComponent.create().inject(this)
+    }
+
+    @Inject
+    lateinit var musicRecommender: MusicRecommender
 
     //if true, service would kill itself every time it finishes the command
     var selfStop = false
@@ -62,16 +75,30 @@ class SpotifyPlayerService : Service() {
         intent.let {
             when (it?.action) {
                 "start" -> {
-                    startMusic()
+                    startMusic(
+                        StateDto(
+                            intent?.extras?.getString("weather"),
+                            intent?.extras?.getString("time"),
+                            intent?.extras?.getString("occupation")
+                        )
+                    )
                 }
             }
+        }
+        if (selfStop) {
+            this.stopSelf()
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun startMusic() {
-        mSpotifyAppRemote?.playerApi?.play("spotify:playlist:37i9dQZF1DWXpOtMyVOt4Q")
-
+    private fun startMusic(state: StateDto) {
+        val list = musicRecommender.getPlaylistByState(state)
+        for (song in list) {
+            mSpotifyAppRemote?.playerApi?.queue(song)
+        }
+        mSpotifyAppRemote?.playerApi?.resume()
     }
+
+    //TODO specify the learning process
 
 }

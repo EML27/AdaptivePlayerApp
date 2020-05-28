@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-class MusicRecommenderModule {
+class InjectForSpotyServiceModule {
     @Provides
     fun getMusicRecommender():MusicRecommender{
         return MusicRecommender()

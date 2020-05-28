@@ -49,13 +49,16 @@ class StateService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    //TODO add command learn
+
+    //TODO insert strings to Extra
 
     private fun setNotification() {
 
         val currentStateTitle: String
 
         //Логика установки текущего состояния
-        currentStateTitle = state?.occupation + " " + state?.time + " "+ state?.weather
+        currentStateTitle = state?.occupation + " " + state?.time + " " + state?.weather
         // оаоаоаоаоаоаоа
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

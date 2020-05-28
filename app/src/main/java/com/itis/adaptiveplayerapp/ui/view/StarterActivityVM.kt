@@ -1,6 +1,5 @@
 package com.itis.adaptiveplayerapp.ui.view
 
-import com.itis.adaptiveplayerapp.di.component.DaggerMusicRecommenderComponent
 import com.itis.adaptiveplayerapp.di.component.DaggerServiceInteractorComponent
 import com.itis.adaptiveplayerapp.service.interactor.SpotifyServiceInteractor
 import com.itis.adaptiveplayerapp.service.interactor.StateServiceInteractor

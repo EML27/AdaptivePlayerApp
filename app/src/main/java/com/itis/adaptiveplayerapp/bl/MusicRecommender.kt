@@ -5,6 +5,7 @@ import com.itis.adaptiveplayerapp.bl.gps.Occupation
 import com.itis.adaptiveplayerapp.bl.room.database.AppDatabase
 import com.itis.adaptiveplayerapp.bl.room.entity.SongEntity
 import com.itis.adaptiveplayerapp.bl.room.entity.StateEntity
+import com.itis.adaptiveplayerapp.bl.room.entity.relations.SongStateCrossRef
 import com.itis.adaptiveplayerapp.bl.time.TimeOfDay
 import com.itis.adaptiveplayerapp.di.component.DaggerInjectForMusicRecommenderComponent
 import javax.inject.Inject
@@ -19,7 +20,7 @@ class MusicRecommender @Inject constructor() {
 
     lateinit var db: AppDatabase
 
-    fun getPlaylistByStateFromDB(state: StateDto): List<SongEntity> {
+    private fun getPlaylistByStateFromDB(state: StateDto): List<SongEntity> {
         var stateDB = db.stateDao()
             .getStateByAttributes(
                 state.weather ?: "",
@@ -56,7 +57,7 @@ class MusicRecommender @Inject constructor() {
         }
     }
 
-    fun getDefaultPlaylist(state: StateDto): List<String> {
+    private fun getDefaultPlaylist(state: StateDto): List<String> {
         return when {
             state.occupation == Occupation.JOG.name -> arrayListOf("spotify:playlist:37i9dQZF1DXadOVCgGhS7j")
             state.occupation == Occupation.WALK.name -> arrayListOf("spotify:playlist:37i9dQZF1DX1tyCD9QhIWF")
@@ -68,8 +69,35 @@ class MusicRecommender @Inject constructor() {
         }
     }
 
-    //TODO learn method
+    fun learn(state: StateDto, songUrl: String) {
+        var song = db.songDao().getSongByUrl(songUrl)
+        if (song == null) {
+            song = SongEntity(0, songUrl)
+            db.songDao().insert(song)
+            song = db.songDao().getSongByUrl(songUrl)
+        }
+        var stateEnt = db.stateDao()
+            .getStateByAttributes(
+                state.weather ?: "",
+                state.time ?: "",
+                state.occupation ?: ""
+            )
+        if (stateEnt == null) {
+            stateEnt = StateEntity(
+                0,
+                state.weather ?: "",
+                state.time ?: "",
+                state.occupation ?: ""
+            )
+            db.stateDao().insert(stateEnt)
+            stateEnt = db.stateDao().getStateByAttributes(
+                state.weather ?: "",
+                state.time ?: "",
+                state.occupation ?: ""
+            )
+        }
+        db.songStateDao().insert(SongStateCrossRef(stateEnt?.stateId ?: 0, song?.songId ?: 0))
+    }
 
-    //TODO inject this in service
 
 }
