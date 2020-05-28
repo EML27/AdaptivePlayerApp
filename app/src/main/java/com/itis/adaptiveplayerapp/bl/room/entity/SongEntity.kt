@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "song")
 data class SongEntity(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     var songId: Long,
     var url: String
 )

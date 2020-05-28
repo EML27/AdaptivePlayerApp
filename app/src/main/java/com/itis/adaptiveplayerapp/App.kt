@@ -1,6 +1,8 @@
 package com.itis.adaptiveplayerapp
 
 import android.content.Context
+import androidx.room.Room
+import com.itis.adaptiveplayerapp.bl.room.database.AppDatabase
 import com.itis.adaptiveplayerapp.ui.view.StarterActivity
 import com.itis.adaptiveplayerapp.ui.view.StarterActivityModule
 import com.itis.adaptiveplayerapp.ui.view.StarterActivityVM
@@ -16,6 +18,7 @@ import javax.inject.Singleton
 
 
 var instance: App? = null
+lateinit var database: AppDatabase
 
 class App : DaggerApplication() {
 
@@ -23,6 +26,7 @@ class App : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        database = Room.databaseBuilder(this, AppDatabase::class.java, "database").build()
     }
 
     override fun onTerminate() {
@@ -32,6 +36,7 @@ class App : DaggerApplication() {
 
     companion object {
         fun getInstance() = instance
+        fun getDb()= database
     }
 //
 //    @Inject

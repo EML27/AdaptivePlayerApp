@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "state")
 data class StateEntity(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     var stateId: Long,
     var weather: String,
     var time: String,

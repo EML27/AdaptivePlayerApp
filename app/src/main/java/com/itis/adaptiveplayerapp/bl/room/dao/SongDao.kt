@@ -15,7 +15,7 @@ interface SongDao {
     fun getAll(): LiveData<List<SongEntity>>
 
     @Query("SELECT * FROM song WHERE song.songId =:id")
-    fun getSongById(id: Long): SongEntity
+    fun getSongById(id: Long): SongEntity?
 
     @Query("SELECT song.songId,url FROM song INNER JOIN song_state ON song.songId=song_state.songId WHERE stateId=:stateEntityId")
     fun getSongsByState(stateEntityId: Long): LiveData<List<SongEntity>>

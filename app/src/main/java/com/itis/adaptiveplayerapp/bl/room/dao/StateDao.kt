@@ -12,10 +12,10 @@ interface StateDao {
     fun getAll(): LiveData<List<StateEntity>>
 
     @Query("SELECT * FROM state WHERE state.stateId= :id")
-    fun getStateById(id: Long): StateEntity
+    fun getStateById(id: Long): StateEntity?
 
     @Query("SELECT * FROM state WHERE weather=:weather AND time=:time AND occupation=:occupation")
-    fun getStateByAttributes(weather: String, time: String, occupation: String): StateEntity
+    fun getStateByAttributes(weather: String, time: String, occupation: String): StateEntity?
 
     @Insert
     fun insert(state: StateEntity)
