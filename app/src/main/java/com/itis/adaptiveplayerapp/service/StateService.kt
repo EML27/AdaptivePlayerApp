@@ -27,7 +27,7 @@ class StateService : Service() {
     @Inject
     lateinit var stateReturner: StateReturner
 
-    private var state: StateDto? = null
+    private var learning = false
     val CHANNEL_ID = "27"
     override fun onBind(intent: Intent): IBinder = mBinder
     inner class MyBinder : Binder() {
@@ -40,6 +40,11 @@ class StateService : Service() {
         intent.let {
             when (it?.action) {
                 "start" -> {
+                    learning = false
+                    ListeningThread().start()
+                }
+                "learn" -> {
+                    learning = true
                     ListeningThread().start()
                 }
 
@@ -49,16 +54,13 @@ class StateService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    //TODO add command learn
 
-    //TODO insert strings to Extra
-
-    private fun setNotification() {
+    private fun setNotification(state: StateDto) {
 
         val currentStateTitle: String
 
         //Логика установки текущего состояния
-        currentStateTitle = state?.occupation + " " + state?.time + " " + state?.weather
+        currentStateTitle = state.occupation + " " + state.time + " " + state.weather
         // оаоаоаоаоаоаоа
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -84,7 +86,13 @@ class StateService : Service() {
             .build()
 
         notificationManager.notify(1, notification)
-//        startService(Intent(this, SpotifyPlayerService::class.java).apply { action = "start" })
+
+        if (learning) {
+            SpotifyPlayerService.startLearning(this, state)
+        } else {
+            SpotifyPlayerService.startMusic(this, state)
+        }
+
     }
 
     inner class ListeningThread : Thread() {
@@ -95,8 +103,8 @@ class StateService : Service() {
             super.run()
             while (true) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    this@StateService.state = stateReturner.getState()
-                    setNotification()
+                    val state = stateReturner.getState()
+                    setNotification(state)
                 }
                 sleep(waitTime)
             }

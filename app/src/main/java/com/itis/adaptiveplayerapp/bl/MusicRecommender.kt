@@ -1,5 +1,6 @@
 package com.itis.adaptiveplayerapp.bl
 
+import com.itis.adaptiveplayerapp.App
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
 import com.itis.adaptiveplayerapp.bl.gps.Occupation
 import com.itis.adaptiveplayerapp.bl.room.database.AppDatabase
@@ -14,13 +15,10 @@ import javax.inject.Singleton
 @Singleton
 class MusicRecommender @Inject constructor() {
 
-    init {
-        DaggerInjectForMusicRecommenderComponent.create().inject(this)
-    }
 
-    lateinit var db: AppDatabase
+    private var db = App.getDb()
 
-    private fun getPlaylistByStateFromDB(state: StateDto): List<SongEntity> {
+    private suspend fun getPlaylistByStateFromDB(state: StateDto): List<SongEntity> {
         var stateDB = db.stateDao()
             .getStateByAttributes(
                 state.weather ?: "",
@@ -48,7 +46,7 @@ class MusicRecommender @Inject constructor() {
         return res?.value ?: ArrayList()
     }
 
-    fun getPlaylistByState(state: StateDto): List<String> {
+    suspend fun getPlaylistByState(state: StateDto): List<String> {
         val res = getPlaylistByStateFromDB(state)
         return if (res.isNotEmpty()) {
             res.map { song -> song.url }

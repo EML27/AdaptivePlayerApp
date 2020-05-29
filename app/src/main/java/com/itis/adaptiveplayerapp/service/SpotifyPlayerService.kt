@@ -1,12 +1,13 @@
 package com.itis.adaptiveplayerapp.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import com.itis.adaptiveplayerapp.BuildConfig
-import com.itis.adaptiveplayerapp.DaggerAppComponent
+
 import com.itis.adaptiveplayerapp.bl.MusicRecommender
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
 import com.itis.adaptiveplayerapp.di.component.DaggerInjectForMusicRecommenderComponent
@@ -14,6 +15,10 @@ import com.itis.adaptiveplayerapp.di.component.DaggerInjectForSpotyServiceCompon
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class SpotifyPlayerService : Service() {
@@ -83,6 +88,15 @@ class SpotifyPlayerService : Service() {
                         )
                     )
                 }
+                "learn" -> {
+                    learn(
+                        StateDto(
+                            intent?.extras?.getString("weather"),
+                            intent?.extras?.getString("time"),
+                            intent?.extras?.getString("occupation")
+                        )
+                    )
+                }
             }
         }
         if (selfStop) {
@@ -92,13 +106,49 @@ class SpotifyPlayerService : Service() {
     }
 
     private fun startMusic(state: StateDto) {
-        val list = musicRecommender.getPlaylistByState(state)
-        for (song in list) {
-            mSpotifyAppRemote?.playerApi?.queue(song)
+        CoroutineScope(Dispatchers.Default).launch {
+            val list = musicRecommender.getPlaylistByState(state)
+            for (song in list) {
+                mSpotifyAppRemote?.playerApi?.play(song)
+            }
         }
-        mSpotifyAppRemote?.playerApi?.resume()
     }
 
-    //TODO specify the learning process
+    private fun learn(state: StateDto) {
+        CoroutineScope(Dispatchers.Unconfined).launch {
+            val playerStateCall = mSpotifyAppRemote?.playerApi?.playerState
+            val playerStateCallResult = playerStateCall?.await(10, TimeUnit.SECONDS)
+            var currentSong: String? = null
+            if (playerStateCallResult?.isSuccessful == true) {
+                currentSong = playerStateCallResult.data.track.uri
+            } else {
+                Log.e("SpotifyService", "Error with getting song uri from player")
+                playerStateCallResult?.error?.printStackTrace()
+            }
+            if (currentSong != null) {
+                musicRecommender.learn(state, currentSong)
+            }
+        }
+    }
+
+    companion object {
+        fun startMusic(context: Context, state: StateDto) {
+            context.startService(Intent(context, SpotifyPlayerService::class.java).apply {
+                action = "start"
+                putExtra("weather", state.weather)
+                putExtra("time", state.time)
+                putExtra("occupation", state.occupation)
+            })
+        }
+
+        fun startLearning(context: Context, state: StateDto) {
+            context.startService(Intent(context, SpotifyPlayerService::class.java).apply {
+                action = "learn"
+                putExtra("weather", state.weather)
+                putExtra("time", state.time)
+                putExtra("occupation", state.occupation)
+            })
+        }
+    }
 
 }
