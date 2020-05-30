@@ -29,6 +29,7 @@ class StateService : Service() {
 
     private var learning = false
     val CHANNEL_ID = "27"
+    private var listeningThread: ListeningThread? = null
     override fun onBind(intent: Intent): IBinder = mBinder
     inner class MyBinder : Binder() {
         fun getService() = this@StateService
@@ -37,18 +38,30 @@ class StateService : Service() {
     var mBinder = MyBinder()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        intent.let {
-            when (it?.action) {
+        intent.let { intent ->
+            when (intent?.action) {
                 "start" -> {
                     learning = false
-                    ListeningThread().start()
+                    if (listeningThread == null) {
+                        listeningThread =
+                            ListeningThread().also { it.start() }
+                    }
                 }
                 "learn" -> {
                     learning = true
-                    ListeningThread().start()
+                    if (listeningThread == null) {
+                        listeningThread =
+                            ListeningThread().also { it.start() }
+                    }
                 }
 
-                "stop" -> stopSelf()
+                "stop" -> {
+                    listeningThread?.mustGo = false
+                    listeningThread = null
+                    stopSelf()
+                }
+                else -> {
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -97,11 +110,12 @@ class StateService : Service() {
 
     inner class ListeningThread : Thread() {
 
+        var mustGo = true
         private val waitTime = 10000.toLong()
 
         override fun run() {
             super.run()
-            while (true) {
+            while (mustGo) {
                 CoroutineScope(Dispatchers.IO).launch {
                     val state = stateReturner.getState()
                     setNotification(state)
