@@ -28,37 +28,64 @@ class StateService : Service() {
     lateinit var stateReturner: StateReturner
 
     private var learning = false
+    private var playing = false
     val CHANNEL_ID = "27"
     private var listeningThread: ListeningThread? = null
+
     override fun onBind(intent: Intent): IBinder = mBinder
+
     inner class MyBinder : Binder() {
         fun getService() = this@StateService
     }
 
-    var mBinder = MyBinder()
+    private val mBinder = MyBinder()
+
+    fun start() {
+        playing = true
+
+        if (listeningThread == null) {
+            listeningThread =
+                ListeningThread().also { it.start() }
+        }
+    }
+
+    fun learn() {
+        learning = true
+        if (listeningThread == null) {
+            listeningThread =
+                ListeningThread().also { it.start() }
+        }
+    }
+
+    fun stopLearning() {
+        learning = false
+    }
+
+    fun stop() {
+        learning = false
+        playing = false
+        listeningThread?.mustGo = false
+        listeningThread = null
+        SpotifyPlayerService.pauseMusic(this)
+        stopSelf()
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent.let { intent ->
             when (intent?.action) {
                 "start" -> {
-                    learning = false
-                    if (listeningThread == null) {
-                        listeningThread =
-                            ListeningThread().also { it.start() }
-                    }
+                    start()
                 }
                 "learn" -> {
-                    learning = true
-                    if (listeningThread == null) {
-                        listeningThread =
-                            ListeningThread().also { it.start() }
-                    }
+                    learn()
+                }
+
+                "stop_learn" -> {
+                    stopLearning()
                 }
 
                 "stop" -> {
-                    listeningThread?.mustGo = false
-                    listeningThread = null
-                    stopSelf()
+                    stop()
                 }
                 else -> {
                 }
@@ -102,7 +129,8 @@ class StateService : Service() {
 
         if (learning) {
             SpotifyPlayerService.startLearning(this, state)
-        } else {
+        }
+        if (playing) {
             SpotifyPlayerService.startMusic(this, state)
         }
 

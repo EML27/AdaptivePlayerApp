@@ -12,7 +12,9 @@ import com.itis.adaptiveplayerapp.ui.viewmodel.ui.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Singleton
 
+@Singleton
 class StarterActivityVM @Inject constructor() : BaseViewModel() {
 
     init {
@@ -25,13 +27,14 @@ class StarterActivityVM @Inject constructor() : BaseViewModel() {
     @Inject
     lateinit var spotifyServiceInteractor: SpotifyServiceInteractor
 
-    fun isServiceActive(): LiveData<Boolean> = liveData {
-        emit(false)
-        stateServiceInteractor.liveD.observeForever {
-            Observer<Boolean> { CoroutineScope(Dispatchers.Default).launch { emit(it) } }
-        }
-    }
+    fun isServiceActive(): LiveData<Boolean> =
+        stateServiceInteractor.liveD
 
+
+    fun isLearning(): LiveData<Boolean> = stateServiceInteractor.isLearning
+
+    fun startLearning() = stateServiceInteractor.startLearning()
+    fun stopLearning() = stateServiceInteractor.stopLearning()
     fun startService() {
         stateServiceInteractor.startStateService()
     }

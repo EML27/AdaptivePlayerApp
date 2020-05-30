@@ -97,12 +97,17 @@ class SpotifyPlayerService : Service() {
                         )
                     )
                 }
+                "pause" -> pauseMusic()
             }
         }
         if (selfStop) {
             this.stopSelf()
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    fun pauseMusic() {
+        mSpotifyAppRemote?.playerApi?.pause()
     }
 
     private fun startMusic(state: StateDto) {
@@ -147,6 +152,12 @@ class SpotifyPlayerService : Service() {
                 putExtra("weather", state.weather)
                 putExtra("time", state.time)
                 putExtra("occupation", state.occupation)
+            })
+        }
+
+        fun pauseMusic(context: Context) {
+            context.startService(Intent(context, SpotifyPlayerService::class.java).apply {
+                action = "pause"
             })
         }
     }

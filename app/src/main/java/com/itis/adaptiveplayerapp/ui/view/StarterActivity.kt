@@ -23,7 +23,21 @@ class StarterActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.startSpotifyService()
-        viewModel.isServiceActive().observeForever(Observer {
+
+        learn_switch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                viewModel.startLearning()
+            } else {
+                viewModel.stopLearning()
+            }
+        }
+        LocationRepresenter.checkAndAskForPermissions(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val ld = viewModel.isServiceActive()
+        ld.observeForever(Observer {
             if (it) {
                 play_btn.text = "Stop"
                 play_btn.setOnClickListener { viewModel.stopService() }
@@ -33,6 +47,11 @@ class StarterActivity : BaseActivity() {
             }
         })
 
-        LocationRepresenter.checkAndAskForPermissions(this)
+        val ldLearn = viewModel.isLearning()
+        ldLearn.observeForever(Observer {
+            learn_switch.isChecked = it
+        })
     }
+
+
 }

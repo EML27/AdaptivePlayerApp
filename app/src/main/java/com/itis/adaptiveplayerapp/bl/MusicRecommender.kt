@@ -1,5 +1,6 @@
 package com.itis.adaptiveplayerapp.bl
 
+import android.util.Log
 import com.itis.adaptiveplayerapp.App
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
 import com.itis.adaptiveplayerapp.bl.gps.Occupation
@@ -48,6 +49,7 @@ class MusicRecommender @Inject constructor() {
 
     suspend fun getPlaylistByState(state: StateDto): List<String> {
         val res = getPlaylistByStateFromDB(state)
+        Log.i("PlayList From DB", res.toString())
         return if (res.isNotEmpty()) {
             res.map { song -> song.url }
         } else {
