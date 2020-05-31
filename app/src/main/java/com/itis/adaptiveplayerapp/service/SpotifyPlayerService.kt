@@ -114,26 +114,42 @@ class SpotifyPlayerService : Service() {
         CoroutineScope(Dispatchers.Default).launch {
             val list = musicRecommender.getPlaylistByState(state)
             for (song in list) {
-                mSpotifyAppRemote?.playerApi?.play(song)
+                mSpotifyAppRemote?.playerApi?.queue(song)
             }
         }
     }
 
+    var lastSong: String? = null
+
     private fun learn(state: StateDto) {
-        CoroutineScope(Dispatchers.Unconfined).launch {
-            val playerStateCall = mSpotifyAppRemote?.playerApi?.playerState
-            val playerStateCallResult = playerStateCall?.await(10, TimeUnit.SECONDS)
-            var currentSong: String? = null
-            if (playerStateCallResult?.isSuccessful == true) {
-                currentSong = playerStateCallResult.data.track.uri
-            } else {
-                Log.e("SpotifyService", "Error with getting song uri from player")
-                playerStateCallResult?.error?.printStackTrace()
+//        CoroutineScope(Dispatchers.Unconfined).launch {
+//            val playerStateCall = mSpotifyAppRemote?.playerApi?.playerState
+//            val playerStateCallResult = playerStateCall?.await(10, TimeUnit.SECONDS)
+//            var currentSong: String? = null
+//            if (playerStateCallResult?.isSuccessful == true) {
+//                currentSong = playerStateCallResult.data.track.uri
+//                Log.i("SpotifyService", "Spotify song is adding... $currentSong")
+//            } else {
+//                Log.e("SpotifyService", "Error with getting song uri from player")
+//                playerStateCallResult?.error?.printStackTrace()
+//            }
+//            if (currentSong != null) {
+//                Log.i("SpotifyService", "condition currentSong!=null accessed. Current song: $currentSong")
+//                musicRecommender.learn(state, currentSong)
+//            }
+//            Log.i("SpotifyService", "Learn method finished")
+//        }
+
+        mSpotifyAppRemote?.playerApi?.subscribeToPlayerState()
+            ?.setEventCallback { playerState -> lastSong = playerState.track.uri }
+            ?.setErrorCallback { throwable ->
+                Log.e("SpotifyService", "Смэрть")
+                throwable.printStackTrace()
             }
-            if (currentSong != null) {
-                musicRecommender.learn(state, currentSong)
-            }
+        CoroutineScope(Dispatchers.IO).launch {
+            musicRecommender.learn(state, lastSong ?: "")
         }
+
     }
 
     companion object {

@@ -2,6 +2,7 @@ package com.itis.adaptiveplayerapp.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,7 @@ import com.itis.adaptiveplayerapp.R
 import com.itis.adaptiveplayerapp.bl.StateReturner
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
 import com.itis.adaptiveplayerapp.di.component.DaggerStateReturnerComponent
+import com.itis.adaptiveplayerapp.ui.view.StarterActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -119,20 +121,25 @@ class StateService : Service() {
                 }
             notificationManager.createNotificationChannel(channel)
         }
+        val notificationIntent = Intent(this, StarterActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(currentStateTitle)
             .setSmallIcon(R.drawable.ic_notification_small)
+            .setContentIntent(pendingIntent)
             .build()
 
         notificationManager.notify(1, notification)
 
+        startForeground(1, notification)
         if (learning) {
             SpotifyPlayerService.startLearning(this, state)
         }
         if (playing) {
             SpotifyPlayerService.startMusic(this, state)
         }
+
 
     }
 

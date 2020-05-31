@@ -10,6 +10,10 @@ import com.itis.adaptiveplayerapp.bl.room.entity.StateEntity
 import com.itis.adaptiveplayerapp.bl.room.entity.relations.SongStateCrossRef
 import com.itis.adaptiveplayerapp.bl.time.TimeOfDay
 import com.itis.adaptiveplayerapp.di.component.DaggerInjectForMusicRecommenderComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -44,11 +48,16 @@ class MusicRecommender @Inject constructor() {
         }
 
         val res = stateDB?.stateId?.let { db.songDao().getSongsByState(it) }
-        return res?.value ?: ArrayList()
+        return res ?: ArrayList()
     }
 
     suspend fun getPlaylistByState(state: StateDto): List<String> {
-        val res = getPlaylistByStateFromDB(state)
+        var res: List<SongEntity> = ArrayList()
+        try {
+            res = getPlaylistByStateFromDB(state)
+        } catch (e: Exception) {
+            Log.e("MusicRecommender", "Error caught while accessing db")
+        }
         Log.i("PlayList From DB", res.toString())
         return if (res.isNotEmpty()) {
             res.map { song -> song.url }
@@ -70,34 +79,44 @@ class MusicRecommender @Inject constructor() {
     }
 
     fun learn(state: StateDto, songUrl: String) {
-        var song = db.songDao().getSongByUrl(songUrl)
-        if (song == null) {
-            song = SongEntity(0, songUrl)
-            db.songDao().insert(song)
-            song = db.songDao().getSongByUrl(songUrl)
+        CoroutineScope(Dispatchers.IO).launch {
+            var song = db.songDao().getSongByUrl(songUrl)
+            if (song == null) {
+                song = SongEntity(0, songUrl)
+                db.songDao().insert(song)
+                song = db.songDao().getSongByUrl(songUrl)
+            }
+            var stateEnt = db.stateDao()
+                .getStateByAttributes(
+                    state.weather ?: "",
+                    state.time ?: "",
+                    state.occupation ?: ""
+                )
+            if (stateEnt == null) {
+                stateEnt = StateEntity(
+                    0,
+                    state.weather ?: "",
+                    state.time ?: "",
+                    state.occupation ?: ""
+                )
+                db.stateDao().insert(stateEnt)
+                stateEnt = db.stateDao().getStateByAttributes(
+                    state.weather ?: "",
+                    state.time ?: "",
+                    state.occupation ?: ""
+                )
+            }
+            var rel: SongStateCrossRef? = null
+            song?.let {
+                stateEnt?.let {
+                    rel = db.songStateDao().getByIds(song.songId, stateEnt.stateId)
+                }
+            }
+            if (rel == null) {
+                db.songStateDao()
+                    .insert(SongStateCrossRef(stateEnt?.stateId ?: 0, song?.songId ?: 0))
+            }
         }
-        var stateEnt = db.stateDao()
-            .getStateByAttributes(
-                state.weather ?: "",
-                state.time ?: "",
-                state.occupation ?: ""
-            )
-        if (stateEnt == null) {
-            stateEnt = StateEntity(
-                0,
-                state.weather ?: "",
-                state.time ?: "",
-                state.occupation ?: ""
-            )
-            db.stateDao().insert(stateEnt)
-            stateEnt = db.stateDao().getStateByAttributes(
-                state.weather ?: "",
-                state.time ?: "",
-                state.occupation ?: ""
-            )
-        }
-        db.songStateDao().insert(SongStateCrossRef(stateEnt?.stateId ?: 0, song?.songId ?: 0))
     }
-
 
 }
