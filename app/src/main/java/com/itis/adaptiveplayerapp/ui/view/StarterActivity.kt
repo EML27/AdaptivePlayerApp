@@ -1,5 +1,6 @@
 package com.itis.adaptiveplayerapp.ui.view
 
+import android.annotation.SuppressLint
 import com.itis.adaptiveplayerapp.R
 import javax.inject.Inject
 import android.os.Bundle
@@ -7,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
+import com.google.android.material.snackbar.Snackbar
 import com.itis.adaptiveplayerapp.bl.gps.LocationRepresenter
 import com.itis.adaptiveplayerapp.ui.viewmodel.di.qualifiers.ViewModelInjection
 import com.itis.adaptiveplayerapp.ui.viewmodel.ui.BaseActivity
@@ -20,6 +22,7 @@ class StarterActivity : BaseActivity() {
 
     override fun layoutRes() = R.layout.activity_starter_activity
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.startSpotifyService()
@@ -32,6 +35,14 @@ class StarterActivity : BaseActivity() {
             }
         }
         LocationRepresenter.checkAndAskForPermissions(this)
+
+        help_btn.setOnClickListener {
+            Snackbar.make(
+                findViewById(R.id.activity_layout),
+                "This allows us to listen to your music during some conditions. Help us to help you! =)",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
     }
 
     override fun onStart() {

@@ -116,6 +116,7 @@ class SpotifyPlayerService : Service() {
             for (song in list) {
                 mSpotifyAppRemote?.playerApi?.queue(song)
             }
+            mSpotifyAppRemote?.playerApi?.resume()
         }
     }
 
