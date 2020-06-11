@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AdaptivePlayerApp</string>
+    <string name="app_name">Orpheus</string>
     <string name="notification_channel_name">State observer</string>
     <string name="notification_channel_description">Watching your activity…</string>
 </resources>

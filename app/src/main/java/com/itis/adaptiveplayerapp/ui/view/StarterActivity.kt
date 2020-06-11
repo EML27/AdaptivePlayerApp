@@ -27,6 +27,7 @@ class StarterActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         viewModel.startSpotifyService()
 
+        title="Orpheus"
         learn_switch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 viewModel.startLearning()
