@@ -10,7 +10,6 @@ import com.itis.adaptiveplayerapp.BuildConfig
 
 import com.itis.adaptiveplayerapp.bl.MusicRecommender
 import com.itis.adaptiveplayerapp.bl.dto.StateDto
-import com.itis.adaptiveplayerapp.di.component.DaggerInjectForMusicRecommenderComponent
 import com.itis.adaptiveplayerapp.di.component.DaggerInjectForSpotyServiceComponent
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
@@ -18,7 +17,6 @@ import com.spotify.android.appremote.api.SpotifyAppRemote
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class SpotifyPlayerService : Service() {
@@ -32,7 +30,7 @@ class SpotifyPlayerService : Service() {
 
     //if true, service would kill itself every time it finishes the command
     var selfStop = false
-
+    var spotifyIsPaused = true
     override fun onBind(intent: Intent): IBinder {
         return SpotyBinder()
     }
@@ -113,7 +111,18 @@ class SpotifyPlayerService : Service() {
     private fun startMusic(state: StateDto) {
         CoroutineScope(Dispatchers.Default).launch {
             val list = musicRecommender.getPlaylistByState(state)
-            for (song in list) {
+            mSpotifyAppRemote?.playerApi?.subscribeToPlayerState()
+                ?.setEventCallback { playerState ->
+                    spotifyIsPaused = playerState.isPaused
+                }
+                ?.setErrorCallback { throwable ->
+                    Log.e("SpotifyService", "Смэрть")
+                    throwable.printStackTrace()
+                }
+            if (spotifyIsPaused) {
+                mSpotifyAppRemote?.playerApi?.play(list.random())
+            }
+            for (song in list.shuffled()) {
                 mSpotifyAppRemote?.playerApi?.queue(song)
             }
             mSpotifyAppRemote?.playerApi?.resume()
