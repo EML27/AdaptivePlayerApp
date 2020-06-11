@@ -61,6 +61,9 @@ class StateService : Service() {
 
     fun stopLearning() {
         learning = false
+        if (!playing) {
+            stop()
+        }
     }
 
     fun stop() {
@@ -69,6 +72,7 @@ class StateService : Service() {
         listeningThread?.mustGo = false
         listeningThread = null
         SpotifyPlayerService.pauseMusic(this)
+        stopForeground(true)
         stopSelf()
     }
 
